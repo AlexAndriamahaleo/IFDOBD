@@ -1,12 +1,12 @@
 #README - IFDOBD
 
-##**Algorithme Apriori**
+## **Algorithme Apriori**
 
 Usage:
 
 `$ python aprioriAlgorithm.py fichier min_support`
 
-###**FP-Tree**
+### **FP-Tree**
 
 
 Note: Recommended to use python 3.X versions
