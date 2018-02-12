@@ -4,62 +4,9 @@
 
 
 import sys
-import re
+from utils import *
 import itertools
 
-
-def initFromFile(filename):
-    """
-    Initialise la Base D et Effectue le premier Scan
-    :param filename:
-    :return:
-    """
-    id = []
-    item = []
-    itemSort = []
-    itemSeen = []
-    itemSupport = []
-    L = []
-    D = {}
-    level = 1
-    print("\nlecture du fichier...")
-    with open(filename, 'r') as jeu:
-        content = jeu.read().split('\n')
-        for i in range(content.__len__()):
-            #itération sur chaque ligne
-            line = re.split("[, \-:;]+", content[i])
-
-            flag = 1
-            key = 0
-
-            for l in range(line.__len__()):
-                #itération sur chaque élément d'une ligne
-                if flag == 1 :
-                    id.append(line[l])
-                    key = line[l]
-                    flag = 0
-                else:
-                    item.append(line[l])
-                    itemSeen.append(line[l])
-                    if line[l] not in itemSort :
-                        itemSort.append(line[l])
-
-            D[key] = tuple(item)
-            item.clear()
-
-        itemSort.sort()
-
-        for tab in itemSort:
-            support = itemSeen.count(tab)
-            itemSupport.append(support)
-
-        for a,b in zip(itemSort,itemSupport):
-            L.append((a,b))
-
-        scan, itemSort, inf = deleteInfrequent(L, itemSort)
-        print("\nData: ", D, "\nC%s: " % level, L)
-
-    return id, itemSeen, itemSort, L, D, level
 
 
 def seflJoinCandidat(item,level):
@@ -119,30 +66,6 @@ def isInOldItemSet(inf, ci, level):
     return isNotIn
 
 
-def deleteInfrequent(L, itemset):
-    """
-    Renvoie l'ensemble des items fréquent
-    :param L:
-    :param itemset:
-    :return:
-    """
-    CL = []
-    infrequent = []
-    itemset.clear()
-    for i in L:
-        if i[1] >= confidence:
-            CL.append(i)
-            if len(i[0]) > 1:
-                for j in i[0]:
-                    if j not in itemset:
-                        itemset.append(j)
-            else:
-                itemset.append(i[0])
-        else:
-            infrequent.append(i)
-    if itemset:
-        itemset.sort()
-    return CL, itemset, infrequent
 
 
 def unionKitemSetFrequent(freq, union):
@@ -171,7 +94,7 @@ def aprioriAlgorithm(level, itemSort, li):
     supportSeen = []
     allListi = []
     while li and level:
-        scan, itemSort, notfrequent = deleteInfrequent(li, itemSort)
+        scan, itemSort, notfrequent = deleteInfrequent(li, itemSort, confidence)
         level = level + 1
         li = seflJoinCandidat(itemSort, level)
         li = isInOldItemSet(notfrequent, li, level)
@@ -209,9 +132,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         file = sys.argv[1]
         confidence = int(sys.argv[2])
-        tid, itemSeen, itemSort, L, D, level = initFromFile(file)
+        tid, itemSeen, itemSort, L, D, level = initFromFile(file, confidence)
         print()
-        print("k itemset fréquents:",aprioriAlgorithm(level, itemSort, L))
+        print("k itemset fréquents:", aprioriAlgorithm(level, itemSort, L))
     else:
         print("ERREUR ARGUMENT\nUsage:", sys.argv[0], "fichier min_support\n")
         sys.exit(1)
